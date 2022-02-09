@@ -12,17 +12,12 @@ const bookCreation = async function (req, res) {
 
         //Authentication
         if (userId != req.userId) {
-            return res.status(403).send({
-                status: false,
-                message: "Unauthorized access ! User's credentials doesn't match."
-            })
-        }
-
+            return res.status(403).send({status: false, message: "Unauthorized access ! User's credentials doesn't match."})
+        };
         //Validation starts
         if (!validator.isValidRequestBody(requestBody)) { //for empty req body.
             return res.status(400).send({ status: false, message: 'Invalid request parameters. Please provide book details' })
-        }
-
+        };
         if (!validator.isValid(title)) {
             return res.status(400).send({ status: false, message: "Title must be present" })
         };
@@ -46,11 +41,10 @@ const bookCreation = async function (req, res) {
         };
         if (!validator.isValidObjectId(userId)) {
             return res.status(400).send({ status: false, message: `Invalid userId.` })
-        }
-
+        };
         if (!validateDate(releasedAt, responseType = 'boolean')) {
             return res.status(400).send({ status: false, message: `Invalid date format. Please provide date as 'YYYY-MM-DD'.` })
-        }
+        };
         //validation ends.
 
         //searching title & ISBN in database to maintain their uniqueness.
@@ -86,8 +80,7 @@ const fetchAllBooks = async function (req, res) {
         //Validation for invalid userId in params
         if (userId) {
             if (!(userId.length == 24)) {
-                return res.status(400).send({ status: false, message: "Invalid userId in params." })
-            }
+                return res.status(400).send({ status: false, message: "Invalid userId in params." })}
         }
 
         //Combinations of query params.
@@ -143,26 +136,18 @@ const fetchBooksById = async function (req, res) {
         }
 
         //Finding the book in DB by its Id & an attribute isDeleted:false
-        const findBook = await bookModel.findOne({
-            _id: bookParams,
-            isDeleted: false
-        })
+        const findBook = await bookModel.findOne({_id: bookParams,isDeleted: false })
         if (!findBook) {
             return res.status(404).send({ status: false, message: `Book does not exist or is already been deleted for this ${bookParams}.` })
         }
 
         //Checking the authorization of the user -> Whether user's Id matches with the book creater's Id or not.
         if (findBook.userId != req.userId) {
-            return res.status(401).send({
-                status: false,
-                message: "Unauthorized access."
-            })
+            return res.status(401).send({status: false, message: "Unauthorized access."})
         }
 
         //Accessing the reviews of the specific book which we got above, -> In reviewsData key sending the reviews details of that book.
-        const fetchReviewsData = await reviewModel.find({ bookId: bookParams, isDeleted: false }).select({ deletedAt: 0, isDeleted: 0, createdAt: 0, __v: 0, updatedAt: 0 }).sort({
-            reviewedBy: 1
-        })
+        const fetchReviewsData = await reviewModel.find({ bookId: bookParams, isDeleted: false }).select({ deletedAt: 0, isDeleted: 0, createdAt: 0, __v: 0, updatedAt: 0 }).sort({reviewedBy: 1})
 
         let reviewObj = findBook.toObject()
         if (fetchReviewsData) {

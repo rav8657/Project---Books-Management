@@ -11,28 +11,26 @@ const userCreation = async function (req, res) {
 
         //Validation starts
         if (!validator.isValidRequestBody(requestBody)) { //to check the empty request body
-            return res.status(400).send({ ststus: false, message: "Invalid request parameters,Empty body not accepted." })
-        }
-
+            return res.status(400).send({ status: false, message: "Invalid request parameters,Empty body not accepted." })
+        };
         if (!validator.isValid(title)) {
             return res.status(400).send({ status: false, message: "Title must be present" })
         };
         if (!validator.isValidTitle(title)) {
             return res.status(400).send({ status: false, message: `Title should be among Mr, Mrs or Miss` })
-        }
+        };
         if (!validator.isValid(name)) {
             return res.status(400).send({ status: false, message: "Name is required." })
-        }
+        };
         if (!validator.isValid(phone)) {
             return res.status(400).send({ status: false, message: "Phone number is required" })
-        }
+        };
         if (!validator.isValid(email)) {
             return res.status(400).send({ status: false, message: "Email id is required" })
-        }
+        };
         if (!validator.isValid(password)) {
             return res.status(400).send({ status: false, message: "password is required" })
-        }
-
+        };
         if (!validator.validString(address)) {
             return res.status(400).send({ status: false, message: "Address cannot be empty if key is mentioned." })
         };
@@ -108,10 +106,7 @@ const loginUser = async function (req, res) {
         //validation ends.
 
         //searching credentials of user in DB to cross verify.
-        const findCredentials = await userModel.findOne({
-            email,
-            password
-        })
+        const findCredentials = await userModel.findOne({ email, password })
         if (!findCredentials) {
             return res.status(401).send({ status: false, message: `Invalid login credentials. Email id or password is incorrect.` });
         }
@@ -119,9 +114,9 @@ const loginUser = async function (req, res) {
         const id = findCredentials._id //saving userId by sarching the email & password of the specified user.
 
         //Generating token by the userId
-        const token = await jwt.sign({
+        const token = jwt.sign({
             userId: id,
-            iat: Math.floor(Date.now() / 1000), //time of issuing the token.
+            iat: Math.floor(Date.now() / 1000),
             exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 //setting token expiry time limit.
         }, secretKey)
 
